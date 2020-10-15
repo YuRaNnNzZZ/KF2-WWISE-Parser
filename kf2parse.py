@@ -30,8 +30,10 @@ def tryCopyFiles(defTextFile, baseOutDir):
 
             subprocess.run([os.path.join(scriptDir, "bnkextr.exe"), wemFilesDir + ".bnk"])
 
-        isReadingEvents = False
+        fileDict = {}
 
+        isReadingEvents = False
+        # In Memory Audio
         for line in WWISEDefFile:
             if not isReadingEvents:
                 if line.startswith("In Memory Audio"):
@@ -47,21 +49,44 @@ def tryCopyFiles(defTextFile, baseOutDir):
             if len(lineData) < 8:
                 continue
 
-            # Convert backslashes to proper file separators and strip slashes from start/end
-            lineData[5] = lineData[5].replace("\\", os.path.sep).strip(os.path.sep)
+            fileDict[lineData[1] + ".wem"] = lineData[5]
 
-            inputFile = os.path.join(wemFilesDir, lineData[1] + ".wem")
-            outputFile = os.path.join(baseOutDir, lineData[5] + ".wem")
-            print("Copying file", lineData[2])
+        isReadingEvents = False
+        # Streamed Audio (loose files?)
+        for line in WWISEDefFile:
+            if not isReadingEvents:
+                if line.startswith("Streamed Audio"):
+                    isReadingEvents = True
 
-            # Search in root first
-            if not os.path.exists(inputFile) and os.path.exists(inputDir + os.path.sep + lineData[1] + ".wem"):
-                inputFile = inputDir + os.path.sep + lineData[1] + ".wem"
-
-            if not os.path.exists(inputFile):
-                print("Input file missing, skipping...")
                 continue
 
+            if not line.startswith("\t"):
+                break
+
+            lineData = line.split("\t")
+
+            if len(lineData) < 7:
+                continue
+
+            fileDict[lineData[4]] = lineData[5]
+
+        # Copy and process the files
+        for fileID in fileDict:
+            # Convert backslashes to proper file separators and strip slashes from start/end
+            outFilePath = fileDict[fileID].replace("\\", os.path.sep).strip(os.path.sep)
+
+            inputFile = os.path.join(wemFilesDir, fileID)
+            outputFile = os.path.join(baseOutDir, outFilePath + ".wem")
+
+            # Search in root first
+            if not os.path.exists(inputFile) and os.path.exists(inputDir + os.path.sep + fileID):
+                inputFile = inputDir + os.path.sep + fileID
+
+            if not os.path.exists(inputFile):
+                print("Input file %s missing, skipping..." % fileID)
+                continue
+
+            print("Copying file", outFilePath)
             outDir = os.path.dirname(outputFile)
 
             if not os.path.exists(outDir):
