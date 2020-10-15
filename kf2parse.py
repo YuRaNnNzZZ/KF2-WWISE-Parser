@@ -21,8 +21,6 @@ def tryCopyFiles(defTextFile, baseOutDir):
         if WWISEDefFile.read()[:5] != "Event":
             exit("The file is not a valid WWISE bank dump file.")
 
-        WWISEDefFile.seek(0)
-
         wemFilesDir = os.path.join(inputDir, os.path.basename(defTextFile).replace(".txt", ""))
 
         if not os.path.exists(wemFilesDir) and hasBnkextr:
@@ -32,6 +30,7 @@ def tryCopyFiles(defTextFile, baseOutDir):
 
         fileDict = {}
 
+        WWISEDefFile.seek(0)
         isReadingEvents = False
         # In Memory Audio
         for line in WWISEDefFile:
@@ -51,6 +50,7 @@ def tryCopyFiles(defTextFile, baseOutDir):
 
             fileDict[lineData[1] + ".wem"] = lineData[5]
 
+        WWISEDefFile.seek(0)
         isReadingEvents = False
         # Streamed Audio (loose files?)
         for line in WWISEDefFile:
