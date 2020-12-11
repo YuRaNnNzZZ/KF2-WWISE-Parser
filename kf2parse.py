@@ -79,7 +79,7 @@ def tryCopyFiles(defTextFile, baseOutDir):
             outputFile = os.path.join(baseOutDir, outFilePath + ".wem")
 
             # Search in root first
-            if not os.path.exists(inputFile) and os.path.exists(inputDir + os.path.sep + fileID):
+            if os.path.exists(inputDir + os.path.sep + fileID):
                 inputFile = inputDir + os.path.sep + fileID
 
             if not os.path.exists(inputFile):
