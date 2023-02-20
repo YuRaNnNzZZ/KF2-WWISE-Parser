@@ -12,6 +12,8 @@ hasWW2OGG = False
 hasRevorb = False
 
 def processFileDict(fileDict, wemFilesDir, inputDir, baseOutDir):
+    processedFiles = []
+
     # Copy and process the files
     for fileID in fileDict:
         # Convert backslashes to proper file separators and strip slashes from start/end
@@ -38,23 +40,19 @@ def processFileDict(fileDict, wemFilesDir, inputDir, baseOutDir):
 
         copyfile(inputFile, outputFile)
 
+        processedFiles.append(outputFile)
+
     if hasWW2OGG:
-        for fileId in fileDict:
-            outFilePath = fileDict[fileID].replace("\\", os.path.sep).strip(os.path.sep)
-            if not outFilePath.endswith(".wem"):
-                outFilePath = outFilePath + ".wem"
+        for filePath in processedFiles:
+            subprocess.run([os.path.join(scriptDir, "ww2ogg.exe"), filePath, "--pcb", os.path.join(scriptDir, "packed_codebooks_aoTuV_603.bin")])
 
-            if os.path.exists(outputFile):
-                subprocess.run(
-                    [os.path.join(scriptDir, "ww2ogg.exe"), outputFile, "--pcb", os.path.join(scriptDir, "packed_codebooks_aoTuV_603.bin")])
+            outputFileOGG = filePath.replace(".wem", ".ogg")
 
-                outputFileOGG = outputFile.replace(".wem", ".ogg")
+            if os.path.exists(outputFileOGG):
+                os.remove(filePath) # we don't need the wem anymore
 
-                if os.path.exists(outputFileOGG):
-                    os.remove(outputFile) # we don't need the wem anymore
-
-                    if hasRevorb:
-                        subprocess.run([os.path.join(scriptDir, "revorb.exe"), outputFileOGG])
+                if hasRevorb:
+                    subprocess.run([os.path.join(scriptDir, "revorb.exe"), outputFileOGG])
 
 def tryCopyJSON(defTextFile, baseOutDir):
     print("Input file:", defTextFile)
