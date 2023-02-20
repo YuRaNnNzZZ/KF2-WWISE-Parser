@@ -38,17 +38,23 @@ def processFileDict(fileDict, wemFilesDir, inputDir, baseOutDir):
 
         copyfile(inputFile, outputFile)
 
-        if hasWW2OGG and os.path.exists(outputFile):
-            subprocess.run(
-                [os.path.join(scriptDir, "ww2ogg.exe"), outputFile, "--pcb", os.path.join(scriptDir, "packed_codebooks_aoTuV_603.bin")])
+    if hasWW2OGG:
+        for fileId in fileDict:
+            outFilePath = fileDict[fileID].replace("\\", os.path.sep).strip(os.path.sep)
+            if not outFilePath.endswith(".wem"):
+                outFilePath = outFilePath + ".wem"
 
-            outputFileOGG = outputFile.replace(".wem", ".ogg")
+            if os.path.exists(outputFile):
+                subprocess.run(
+                    [os.path.join(scriptDir, "ww2ogg.exe"), outputFile, "--pcb", os.path.join(scriptDir, "packed_codebooks_aoTuV_603.bin")])
 
-            if os.path.exists(outputFileOGG):
-                os.remove(outputFile) # we don't need the wem anymore
+                outputFileOGG = outputFile.replace(".wem", ".ogg")
 
-                if hasRevorb:
-                    subprocess.run([os.path.join(scriptDir, "revorb.exe"), outputFile.replace(".wem", ".ogg")])
+                if os.path.exists(outputFileOGG):
+                    os.remove(outputFile) # we don't need the wem anymore
+
+                    if hasRevorb:
+                        subprocess.run([os.path.join(scriptDir, "revorb.exe"), outputFileOGG])
 
 def tryCopyJSON(defTextFile, baseOutDir):
     print("Input file:", defTextFile)
