@@ -72,7 +72,7 @@ def tryCopyJSON(defTextFile, baseOutDir):
             info = data["SoundBanksInfo"]
 
             if info.get("StreamedFiles"):
-                for sfile in info["StreamedFiles"]:
+                for f in info["StreamedFiles"]:
                     fileDict[f["Id"] + ".wem"] = f["Path"]
 
             if info.get("SoundBanks"):
