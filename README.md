@@ -1,11 +1,11 @@
 # Killing Floor 2 WWISE Bank Dump Parser
 
-Allows to organize extracted .wem files when .txt file with paths is available.
+Allows to organize extracted .wem files when .txt (or .json) file with paths is available.
 
 ## Requirements
 * Python 3.5+
 
-## Usage
+## Usage (Killing Floor 2)
 1. Download the script
 2. (Optional) Place the tools listed below to the folder with the script
 3. Navigate to `SteamApps/common/killingfloor2/KFGame/BrewedPC/WwiseAudio/Windows` folder
