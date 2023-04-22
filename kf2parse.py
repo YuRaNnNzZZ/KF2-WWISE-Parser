@@ -11,6 +11,23 @@ hasBnkextr = False
 hasWW2OGG = False
 hasRevorb = False
 
+wwiseLangs = [
+    'Chinese(PRC)',
+    'Chinese(Taiwan)',
+    'English(US)',
+    'French(France)',
+    'German',
+    'Italian',
+    'Japanese',
+    'Korean',
+    'Polish',
+    'Portuguese(Brazil)',
+    'Portuguese(Portugal)',
+    'Russian',
+    'Spanish(Mexico)',
+    'Spanish(Spain)',
+]
+
 def processFileDict(fileDict, wemFilesDir, inputDir, baseOutDir):
     processedFiles = []
 
@@ -18,7 +35,7 @@ def processFileDict(fileDict, wemFilesDir, inputDir, baseOutDir):
     for fileID in fileDict:
         # Convert backslashes to proper file separators and strip slashes from start/end
         outFilePath = fileDict[fileID].replace("\\", os.path.sep).strip(os.path.sep)
-        if not outFilePath.endswith(".wem"):
+        if not outFilePath.lower().endswith(".wem"):
             outFilePath = outFilePath + ".wem"
 
         inputFile = os.path.join(wemFilesDir, fileID)
@@ -48,7 +65,7 @@ def processFileDict(fileDict, wemFilesDir, inputDir, baseOutDir):
 
             outputFileOGG = filePath.replace(".wem", ".ogg")
 
-            if os.path.exists(outputFileOGG):
+            if os.path.exists(outputFileOGG) and os.path.exists(filePath):
                 os.remove(filePath) # we don't need the wem anymore
 
                 if hasRevorb:
@@ -100,6 +117,12 @@ def tryCopyFiles(defTextFile, baseOutDir):
 
     wemFilesDir = os.path.join(inputDir, os.path.basename(defTextFile).replace(".txt", ""))
 
+    checkParent = False
+    for lang in wwiseLangs:
+        if wemFilesDir.lower().find(lang.lower()):
+            checkParent = True
+            break
+
     if not os.path.exists(wemFilesDir) and os.path.exists(wemFilesDir + ".bnk") and hasBnkextr:
         os.makedirs(wemFilesDir)
 
@@ -129,6 +152,9 @@ def tryCopyFiles(defTextFile, baseOutDir):
             if len(lineData) < 8:
                 continue
 
+            if checkParent:
+                fileDict[os.path.join(os.path.dirname(lineData[1]), "..", os.path.basename(lineData[1])) + ".wem"] = lineData[5]
+
             fileDict[lineData[1] + ".wem"] = lineData[5]
 
         WWISEDefFile.seek(0)
@@ -148,6 +174,9 @@ def tryCopyFiles(defTextFile, baseOutDir):
 
             if len(lineData) < 7:
                 continue
+
+            if checkParent:
+                fileDict[os.path.join(os.path.dirname(lineData[4]), "..", os.path.basename(lineData[4]))] = lineData[5]
 
             fileDict[lineData[4]] = lineData[5]
 
@@ -176,15 +205,15 @@ if __name__ == "__main__":
     for arg in args[1:]:
         baseOutDir = os.path.dirname(os.path.abspath(arg))
 
-        if arg.endswith(".txt"):
+        if arg.lower().endswith(".txt"):
             tryCopyFiles(os.path.abspath(arg), baseOutDir)
             continue
 
-        if arg.endswith(".json"):
+        if arg.lower().endswith(".json"):
             tryCopyJSON(os.path.abspath(arg), baseOutDir)
             continue
 
-        if arg.endswith(".bnk") and hasBnkextr:
+        if arg.lower().endswith(".bnk") and hasBnkextr:
             subprocess.run([os.path.join(scriptDir, "bnkextr.exe"), os.path.abspath(arg)])
             continue
 
