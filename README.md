@@ -16,3 +16,7 @@ Allows to organize extracted .wem files when .txt (or .json) file with paths is 
 * If `bnkextr.exe` is present in the folder with this script, the bank will be extracted before processing. Otherwise, extracted .wem files are required.
 * If `ww2ogg.exe` and `packed_codebooks_aoTuV_603.bin` are available in the same folder, copied .wem files would be converted to .ogg and removed.
 * Additionally, if `revorb.exe` is present, resulting .ogg files will be processed (requires ww2ogg).
+* If you have [vgmstream](https://vgmstream.org/) directory placed alongside the script (`vgmstream-win64/vgmstream-cli.exe`), it will process files skipped by ww2ogg (or all files if ww2ogg is not available)
+
+## Why Python?
+Default installation of Python makes it easy to drag and drop .bnk files onto the script without any workarounds.
