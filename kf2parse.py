@@ -10,6 +10,7 @@ scriptDir = ""
 hasBnkextr = False
 hasWW2OGG = False
 hasRevorb = False
+hasvgmstream = False
 
 wwiseLangs = [
     'Chinese(PRC)',
@@ -49,6 +50,9 @@ def processFileDict(fileDict, wemFilesDir, inputDir, baseOutDir):
             print("Input file %s missing, skipping..." % fileID)
             continue
 
+        if os.path.exists(outputFile.replace(".wem", ".ogg")) or os.path.exists(outputFile.replace(".wem", ".wav")):
+            continue # do not copy and don't process file if wav or ogg already exists
+
         print("Copying file", outFilePath)
         outDir = os.path.dirname(outputFile)
 
@@ -70,6 +74,21 @@ def processFileDict(fileDict, wemFilesDir, inputDir, baseOutDir):
 
                 if hasRevorb:
                     subprocess.run([os.path.join(scriptDir, "revorb.exe"), outputFileOGG])
+            elif hasvgmstream:
+                outputFileWAV = filePath.replace(".wem", ".wav")
+
+                subprocess.run([os.path.join(scriptDir, "vgmstream-win64", "vgmstream-cli.exe"), "-o", outputFileWAV, filePath])
+
+                if os.path.exists(outputFileWAV):
+                    os.remove(filePath) # we don't need the wem anymore
+    elif hasvgmstream:
+        for filePath in processedFiles:
+            outputFileWAV = filePath.replace(".wem", ".wav")
+
+            subprocess.run([os.path.join(scriptDir, "vgmstream-win64", "vgmstream-cli.exe"), "-o", outputFileWAV, filePath])
+
+            if os.path.exists(outputFileWAV):
+                os.remove(filePath) # we don't need the wem anymore
 
 def tryCopyJSON(defTextFile, baseOutDir):
     print("Input file:", defTextFile)
@@ -198,6 +217,10 @@ if __name__ == "__main__":
     # Check for Revorb
     if os.path.exists(os.path.join(scriptDir, "revorb.exe")):
         hasRevorb = True
+
+    # Check for vgmstream
+    if os.path.exists(os.path.join(scriptDir, "vgmstream-win64", "vgmstream-cli.exe")):
+        hasvgmstream = True
 
     if len(args) < 2:
         exit("You must provide at least one input file.")

@@ -1,0 +1,6 @@
+vgmstream-win64
+
+*.bin
+*.exe
+*.dll
+*.zip
